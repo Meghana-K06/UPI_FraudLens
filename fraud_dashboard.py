@@ -195,6 +195,24 @@ header[data-testid="stHeader"] { display: none; }
 /* Data table */
 [data-testid="stDataFrame"] { border: 1px solid var(--border); border-radius: 10px; }
 
+/* ── Sidebar headings & text ── */
+[data-testid="stSidebar"] h3 {
+  font-size: 1rem !important;
+  color: #e6edf3 !important;
+  letter-spacing: 0.04em !important;
+  text-transform: uppercase !important;
+}
+[data-testid="stSidebar"] .stSlider label p,
+[data-testid="stSidebar"] .stSelectbox label p,
+[data-testid="stSidebar"] .stNumberInput label p {
+  font-size: 0.88rem !important;
+  color: #c9d1d9 !important;
+}
+[data-testid="stSidebar"] .stCaption p {
+  color: #8b949e !important;
+  font-size: 0.78rem !important;
+}
+
 /* Score dial */
 .score-dial {
   text-align: center; padding: 1.5rem;
@@ -275,6 +293,36 @@ with st.sidebar:
         ["📊 Analytics Overview", "🔍 Transaction Inspector", "🧠 XAI Explorer", "📈 Model Performance"],
         label_visibility="collapsed"
     )
+
+    # JS injector: overrides emotion CSS-in-JS inline styles that !important alone can't beat
+    import streamlit.components.v1 as components
+    components.html("""
+<script>
+(function() {
+  function inject() {
+    var doc = window.parent.document;
+    if (doc.getElementById('fs-nav-style')) return;
+    var style = doc.createElement('style');
+    style.id = 'fs-nav-style';
+    style.textContent = [
+      '[data-testid="stSidebar"] [data-testid="stRadio"] label p {',
+      '  font-size: 1.05rem !important;',
+      '  font-weight: 500 !important;',
+      '  color: #c9d1d9 !important;',
+      '}',
+      '[data-testid="stSidebar"] [data-testid="stRadio"] div[data-baseweb="radio"] {',
+      '  padding-top: 0.3rem !important;',
+      '  padding-bottom: 0.3rem !important;',
+      '}',
+    ].join(' ');
+    doc.head.appendChild(style);
+  }
+  inject();
+  setTimeout(inject, 800);
+  setTimeout(inject, 2000);
+})();
+</script>
+""", height=0)
 
     st.markdown("---")
     st.markdown("### 🎚️ Risk Thresholds")
